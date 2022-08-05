@@ -1,13 +1,34 @@
-// Images
+// Sounds
 let deathSound = new Audio('../sounds/death.mp3')
-deathSound.volume = 0.05
-
-let ktman = new Image()
-ktman.src = './img/ktman.png'
-ktman.style.scale = 3
+deathSound.volume = 0.15
 
 let enemyDeath =  new Audio('../sounds/enemyDeath.mp3')
-enemyDeath.volume = .08
+enemyDeath.volume = .1
+
+let beep = new Audio("../sounds/ah.mp3")
+let ambient = new Audio('../sounds/ambient.mp3')
+
+beep.volume = 0.02
+ambient.volume = 0.02
+
+
+
+// ambient.play()
+
+var resp = ambient.play();
+
+if (resp !== undefined) {
+    resp.then(_ => {
+        ambient.play()
+    }).catch(error => {
+        // ambient.play()
+    });
+}
+
+//ktman.style.scale = 3
+
+
+// Images
 
 let platformImg = new Image()
 platformImg.src = './img/platform.png'
@@ -22,9 +43,35 @@ let background = new Image()
 background.src = './img/background.png'
 
 let bulletSprite = new Image()
-bulletSprite.src = './img/disk.svg'
-// bulletSprite.style.height = 24
-// bulletSprite.style.width = 
+bulletSprite.src = './img/disk.png'
+
+
+//Blender----------------
+let blenderBullet = new Image()
+blenderBullet.src = './img/blender/blenderBullet2.svg'
+
+// c.drawImage(blenderBullet,
+//     7 * this.bulletFrames + this.bulletFrames,0,
+//     7, 4,
+//     this.x,
+//     this.y,
+//     this.width,
+//     this.height);
+//-----------------------
+
+//KTMAN------------------
+let ktmanStayRight = new Image()
+ktmanStayRight.src = './img/ktman/ktman-stayAnim.svg'
+
+let ktmanStayLeft = new Image()
+//ktmanStayLeft.src = './img/ktman/ktman-stayAnim.png'
+
+let ktmanDisk = new Image()
+ktmanDisk.src = './img/ktman/ktmanDisk.svg'
+
+
+//-----------------------
+
 
 
 // --------------------------------------------------
@@ -54,16 +101,24 @@ class Player {
         }
         this.directionRight = true;
         this.isGround = true;
-        this.image = ktman
+        this.frames = 0;
 
     }
     draw() {
-        c.fillStyle = 'red'
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
-        c.drawImage(ktman, this.position.x, this.position.y);
+        // c.fillStyle = 'red'
+        // c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        c.drawImage(ktmanStayRight,
+                    12 * this.frames,0,
+                    12, 17,
+                    this.position.x,
+                    this.position.y,
+                    this.width,
+                    this.height);
     }
 
     update() {
+        
+
         this.draw()
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
@@ -73,125 +128,28 @@ class Player {
     }
 }
 
-class Bullet {
-    constructor({ a, b }) {
-        this.position = {
-            x: player.position.x + (player.width / 2) - (this.width / 2),
-            y: player.position.y + (player.height / 2) - (this.height / 2)
-        }
-        this.target = {
-            a,
-            b
-        }
-        this.width = 24
-        this.height = 24
-        this.velocity = {
-            x: 0,
-            y: 0
-        }
-        this.isReturn = false
-        this.readyToFeturn = false
+//UPDATE//
+    setInterval(()=>{
+        player.frames++
+        if(player.frames > 24) player.frames = 0;
+
         
-        this.image = bulletSprite
-    }
-    draw() {
-        
-         c.fillStyle = 'yellow'
-        
-         c.fillRect(this.position.x, this.position.y, this.width, this.height)
-         c.drawImage(this.image, this.position.x, this.position.y)
-    }
+    }, 30)
+    setInterval(()=>{
 
-    intarget() {
-        // console.log(this)
-        this.draw()
-        let targetPosX = this.target.a;
-        let targetPosY = this.target.b;
+        bullets.forEach(bullet => {
+            bullet.bulletFrames++
+            if(bullet.bulletFrames > 1) bullet.bulletFrames = 0;
+        })
+    }, 200)
+//------//
 
-        let diskPosX = this.position.x + (this.width / 2);
-        let diskPosY = this.position.y + (this.height / 2);
-
-        //coordination
-        if (targetPosX < diskPosX) {
-
-        }
-        //------------
-        if (targetPosX < diskPosX) {
-            if (this.velocity.x > -4) this.velocity.x += -0.1;
-            else if (this.velocity.x != 0) this.velocity.x -= -0.1;
-        }
-        else if (targetPosX > diskPosX) {
-            if (this.velocity.x < 4) this.velocity.x += 0.1;
-            else if (this.velocity.x != 0) this.velocity.x -= 0.1;
-        }
-
-        if (targetPosY < diskPosY) {
-            if (this.velocity.y > -4) this.velocity.y += -0.1;
-            else if (this.velocity.y != 0) this.velocity.y -= -0.1;
-        }
-        else if (targetPosY > diskPosY) {
-            if (this.velocity.y < 4) this.velocity.y += 0.1;
-            else if (this.velocity.y != 0) this.velocity.y -= 0.1;
-        }
-
-        this.position.y += this.velocity.y;
-        this.position.x += this.velocity.x;
-
-
-        if (!this.readyToFeturn) {
-            setTimeout(()=>{
-            this.isReturn = true;
-            this.velocity.y = 0;
-            this.velocity.x = 0;
-            },2000)
-            this.readyToFeturn = true;
-        }
-    }
-    return() {
-        this.draw()
-        let playerPosX = player.position.x + (player.width / 2);
-        let playerPosY = player.position.y + (player.height / 2);
-
-        let diskPosX = this.position.x + (this.width / 2);
-        let diskPosY = this.position.y + (this.height / 2);
-
-        if (playerPosX < diskPosX) {
-            if (this.velocity.x > -4) this.velocity.x += -0.1;
-            else if (this.velocity.x != 0) this.velocity.x -= -0.1;
-        }
-        else if (playerPosX > diskPosX) {
-            if (this.velocity.x < 4) this.velocity.x += 0.1;
-            else if (this.velocity.x != 0) this.velocity.x -= 0.1;
-        }
-
-        if (playerPosY < diskPosY) {
-            if (this.velocity.y > -4) this.velocity.y += -0.1;
-            else if (this.velocity.y != 0) this.velocity.y -= -0.1;
-        }
-        else if (playerPosY > diskPosY) {
-            if (this.velocity.y < 4) this.velocity.y += 0.1;
-            else if (this.velocity.y != 0) this.velocity.y -= 0.1;
-        }
-
-        this.position.y += this.velocity.y;
-        this.position.x += this.velocity.x;
-
-        if (this.readyToFeturn) {
-            setTimeout(()=>{
-            if (bullets.indexOf(this) !== -1) {
-                bullets.splice(bullets.indexOf(this), 1);
-            }  
-            },2000)
-            this.readyToFeturn = false; //Скористання тимчасовою змінною
-        }
-    }
-}
 
 class Enemy {
-    constructor() {
+    constructor({ x, y }) {
         this.position = {
-            x: 700,
-            y: 100
+            x,
+            y
         }
         this.velocity = {
             x: 0,
@@ -252,6 +210,103 @@ class GenericObject {
     }
 }
 
+class Bullet {
+    constructor (x, y, color, velocity, target) {
+        this.x = x
+        this.y = y
+        this.color = color
+        this.velocity = velocity
+        this.width = 36
+        this.height = 36
+        this.bulletFrames = 0
+        this.needReturn = false
+
+        this.target = target
+    }
+
+    draw() {
+
+        //c.fillStyle = this.color
+        //c.fillRect(this.x, this.y, this.width, this.height)
+        
+        c.drawImage(ktmanDisk,
+            12 * this.bulletFrames + this.bulletFrames,0,
+            12, 12,
+            this.x,
+            this.y,
+            this.width,
+            this.height);
+    }
+    intarget() {
+        this.draw()
+        this.x = this.x + this.velocity.x
+        this.y = this.y + this.velocity.y 
+
+        enemies.forEach(enemy => {
+            if (this.x < enemy.position.x + enemy.width &&
+                this.x + this.width > enemy.position.x &&
+                this.y < enemy.position.y + enemy.height &&
+                this.height + this.y > enemy.position.y){
+                    this.needReturn = true
+                    enemy.velocity += 100
+                    enemyDeath.play()
+            }
+        })
+
+        if ( this.x < this.target.x &&
+             this.x + this.width > this.target.x &&
+             this.y < this.target.y &&
+             this.y + this.height > this.target.y)
+        
+        {
+            this.needReturn = true;        
+        }
+    }
+    return() {
+        this.draw()
+        
+
+        const angle = Math.atan2((player.position.y + player.height / 2) - (this.y + this.height / 2),
+         (player.position.x + player.width / 2) - (this.x + this.width / 2))
+        // console.log(angle);
+        
+        
+            this.velocity.x = Math.cos(angle) *8,
+            this.velocity.y =  Math.sin(angle) *8
+
+            this.x = this.x + this.velocity.x
+            this.y = this.y + this.velocity.y
+        
+        
+            //bullets.splice(bulle, 1)
+
+
+        
+        //Видалення кулі
+        if (this.x < player.position.x + player.width && 
+            this.x + this.width > player.position.x &&
+            this.y < player.position.y + player.height &&
+            this.height + this.y > player.position.y){
+                if (bullets.indexOf(this) !== -1) {
+                    bullets.splice(bullets.indexOf(this), 1);
+                }  
+        }
+
+        enemies.forEach(enemy => {
+        //Смерть ворогам! Слава Україні
+        if (this.x < enemy.position.x + enemy.width &&
+            this.x + this.width > enemy.position.x &&
+            this.y < enemy.position.y + enemy.height &&
+            this.height + this.y > enemy.position.y){
+                this.needReturn = true
+                enemy.velocity += 100
+                enemyDeath.play()
+        }
+        })
+
+
+    }
+}
 
 
 
@@ -260,19 +315,55 @@ class GenericObject {
 
 let player = new Player()
 
-let enemy = new Enemy()
-
 let platforms = []
 
 let genericObject = []
 
 let bullets = []
 
+let enemies = []
+
 canvas.addEventListener('click', (event) => {
-    let bullet = new Bullet({ a: event.offsetX, b: event.offsetY })
-    bullet.position.x = player.position.x + (player.width / 2) - (bullet.width / 2);
-    bullet.position.y = player.position.y + (player.height / 2) - (bullet.height / 2)
+
+   if(bullets.length <= 0)
+   {
+
+    const angle = Math.atan2(event.offsetY - ((player.position.y ) + player.height / 2), event.offsetX - ((player.position.x ) + player.width / 2))
+    // console.log(angle);
+    console.log((player.position.x + player.width / 2))
+    const velocity = {
+        x: Math.cos(angle) * 6.5,
+        y: Math.sin(angle) * 6.5
+    }
+    
+    const target = {
+        x: event.offsetX,
+        y: event.offsetY
+    }
+    let bullet = new Bullet(
+        player.position.x + player.width / 2,
+        player.position.y + player.height / 2,
+        // event.offsetX,
+        // event.offsetY,
+        'yellow',
+        velocity,
+        target
+        
+    )
+    bullet.x -= 18;
+    bullet.y -= 18;
+    // console.log(bullet)
+    setTimeout(()=>{
+        bullet.needReturn = true;
+    }, 1000)
+
+    console.log(target)
+
+    // bullet.position.x = player.position.x + (player.width / 2) - (bullet.width / 2);
+    // bullet.position.y = player.position.y + (player.height / 2) - (bullet.height / 2)
+    beep.play()
     bullets.push(bullet)
+    }
 })
 
 
@@ -286,7 +377,24 @@ function init() {
 
     player = new Player()
 
-    enemy = new Enemy()
+    enemies = [
+        new Enemy({
+            x: 700,
+            y: 100
+        }),
+        new Enemy({
+            x: 400,
+            y: 100
+        }),
+        new Enemy({
+            x: 900,
+            y: 100
+        }),
+        new Enemy({
+            x: 530,
+            y: 300
+        })
+    ]
 
     platforms = [
         new Platform({
@@ -400,10 +508,16 @@ function animate() {
     })
 
     player.update()
-    enemy.update()
+
+    enemies.forEach(enemy => {
+        enemy.update()
+    })
+
+    
+    
 
     bullets.forEach(bullet => {
-        if(bullet.isReturn == false)
+        if(bullet.needReturn == false)
         {
             bullet.intarget()    
         }
@@ -428,15 +542,17 @@ function animate() {
         if (keys.right.pressed) {
             scrollOffset += player.speed
 
-            enemy.position.x -= player.speed
-
+            enemies.forEach(enemy => {
+                enemy.position.x -= player.speed
+            })
+            
             platforms.forEach(platform => {
                 platform.position.x -= player.speed
             })
 
             bullets.forEach(bullet => {
-                bullet.position.x -= player.speed
-                bullet.target.a -= player.speed
+                bullet.x -= player.speed
+                // bullet.target.a -= player.speed
             })
 
             genericObject.forEach(genericObject => {
@@ -445,15 +561,17 @@ function animate() {
         } else if (keys.left.pressed && scrollOffset > 0) {
             scrollOffset -= player.speed
 
-            enemy.position.x += player.speed
+            enemies.forEach(enemy => {
+                enemy.position.x += player.speed
+            })
 
             platforms.forEach(platform => {
                 platform.position.x += player.speed
             })
             
             bullets.forEach(bullet => {
-                bullet.position.x += player.speed
-                bullet.target.a += player.speed
+                bullet.x += player.speed
+                // bullet.target.a += player.speed
             })
 
             genericObject.forEach(genericObject => {
@@ -476,49 +594,45 @@ function animate() {
             player.isGround = true
         }
        //Enemy on platform ------------------------------------------------------------
+
+       enemies.forEach(enemy => {
         if (enemy.position.y + enemy.height <= platform.position.y && enemy.position.y + enemy.height
             + enemy.velocity.y >= platform.position.y && enemy.position.x + enemy.width >= platform.position.x
             && enemy.position.x <= platform.position.x + platform.width) {
             enemy.velocity.y = 0;
         }
+       })
     })
 
     platforms.forEach(platform => {
         // ---- Майбутній зпуск з платформи
+        //     Далі буде
     })
 
 
 
 
     // enemy collision
-    if (player.position.y + enemy.height <= enemy.position.y && player.position.y + player.height
-        + player.velocity.y >= enemy.position.y && player.position.x + player.width >= enemy.position.x
-        && player.position.x <= enemy.position.x + enemy.width) {
-        player.velocity.y -= 20;
-        enemyDeath.play()
-        enemy.velocity += 10
-    }
 
-    bullets.forEach(bullet =>{
-        
-
-     if (bullet.position.x < enemy.position.x + enemy.width &&
-        bullet.position.x + bullet.width > enemy.position.x &&
-        bullet.position.y < enemy.position.y + enemy.height &&
-        bullet.height + bullet.position.y > enemy.position.y){
+    enemies.forEach(enemy => {
+        if (player.position.y + enemy.height <= enemy.position.y && player.position.y + player.height
+            + player.velocity.y >= enemy.position.y && player.position.x + player.width >= enemy.position.x
+            && player.position.x <= enemy.position.x + enemy.width) {
+            player.velocity.y -= 35
+            player.isGround = false
             enemyDeath.play()
             enemy.velocity += 10
         }
-    })
-
-    if (player.position.x < enemy.position.x + enemy.width &&
-        player.position.x + player.width > enemy.position.x &&
-        player.position.y < enemy.position.y + enemy.height &&
-        player.height + player.position.y > enemy.position.y){
-            deathSound.play()
-            init()
+    
+        if (player.position.x < enemy.position.x + enemy.width &&
+            player.position.x + player.width > enemy.position.x &&
+            player.position.y < enemy.position.y + enemy.height &&
+            player.height + player.position.y > enemy.position.y){
+                deathSound.play()
+                bullets = []
+                init()
         }
-
+    })
 
 
     
@@ -530,6 +644,7 @@ function animate() {
     // lose
     if (player.position.y > canvas.height){
         deathSound.play()
+        bullets = []
         init()
     }
 
@@ -599,25 +714,3 @@ addEventListener('keyup', ({ keyCode }) => {
     }
 })
 
-let beep = new Audio("../sounds/ah.mp3")
-let ambient = new Audio('../sounds/ambient.mp3')
-
-beep.volume = 0.02
-ambient.volume = 0.02
-
-
-addEventListener('click', () => {
-    beep.play()
-})
-
-// ambient.play()
-
-var resp = ambient.play();
-
-if (resp !== undefined) {
-    resp.then(_ => {
-        ambient.play()
-    }).catch(error => {
-        // ambient.play()
-    });
-}
